@@ -5,7 +5,7 @@ class Blockchain
   def initialize
     @transaction_pool = []
     @chain = []
-    create_block(0, 'hash 0')
+    create_block(0, 'hash 1')
   end
 
   def create_block(nonce, previous_hash)
@@ -21,11 +21,22 @@ class Blockchain
   end
 end
 
-blockchain = Blockchain.new()
-p blockchain.chain
-blockchain.create_block(5, 'hash 1')
-p blockchain.chain
-blockchain.create_block(6, 'hash 2')
-p blockchain.chain
+RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN = 31, 32, 33, 34, 35, 36
 
-# def put_string(chans)
+def put_string(chains)
+
+  chains.each.with_index(1) do |chain, index|
+    puts "\e[#{BLUE}m#{'=' * 35}" + " #{index} " + "#{'=' * 35}\e[0m"
+
+    chain.each do |key, value|
+      printf("%14s: %s\n", key, value)
+    end
+  end
+end
+
+blockchain = Blockchain.new()
+put_string(blockchain.chain)
+blockchain.create_block(5, 'hash 2')
+put_string(blockchain.chain)
+blockchain.create_block(6, 'hash 3')
+put_string(blockchain.chain)
