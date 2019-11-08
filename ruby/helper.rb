@@ -15,7 +15,11 @@ def put_string(chain)
           puts "\e[#{MAGENTA}m#{'- ' * 43}\e[0m"
 
           transanction.each do |tkey, tvalue|
-            printf("%18s: %s\n", tkey, tvalue)
+            if tkey.to_s == "value"
+              printf("%18s: %s\n", tkey, tvalue.to_f)
+            else
+              printf("%18s: %s\n", tkey, tvalue)
+            end
           end
         end
       else

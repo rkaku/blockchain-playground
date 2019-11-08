@@ -82,13 +82,35 @@ class Blockchain
     return true
   end
 
-  # def calculate_total_amount(blockchain_address)
-  #   total_amount = '0.0'.to_d
-  #   chain.
+  def calculate_total_amount(my_blockchain_address)
+    total_amount = '0.0'.to_d
+    @chain.each do |block|
+      block.each do |key, value|
+        if key.to_s == "transactions"
+          value.each do |transaction|
+            if transaction[:recipient_address] == my_blockchain_address
+              total_amount += transaction[:value]
+            elsif transaction[:sender_address] == my_blockchain_address
+              total_amount -= transaction[:value]
+            end
+          end
+        end
+      end
+    end
+    return total_amount.to_f
+  end
+
 end
 
 
-my_blockchain_address = 'my_address'
+# :transactions=>
+# [
+# {:sender_address=>"A", :recipient_address=>"B", :value=>0.5e2},
+# {:sender_address=>"a0dc65ffca799873cbea0ac274015b9526505daaaed385155425f7337704883e", :recipient_address=>"my_blockchain_address", :value=>0.1e1}
+# ]
+
+
+my_blockchain_address = 'my_blockchain_address'
 blockchain = Blockchain.new(my_blockchain_address)
 put_string(blockchain.chain)
 
@@ -106,3 +128,6 @@ blockchain.mining
 # nonce = blockchain.ploof_of_work
 # blockchain.create_block(nonce, previous_hash)
 put_string(blockchain.chain)
+puts 'my', blockchain.calculate_total_amount(my_blockchain_address)
+puts 'C', blockchain.calculate_total_amount("C")
+puts 'D', blockchain.calculate_total_amount("D")
