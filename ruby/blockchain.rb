@@ -48,7 +48,7 @@ class Blockchain
       recipient_address: recipient_address,
       value: value.to_d.floor(8)
     }
-    transaction_pool.push(transaction)
+    @transaction_pool.push(transaction)
     return true
   end
 
@@ -63,9 +63,9 @@ class Blockchain
   end
 
   def ploof_of_work
-    tmp = Marshal.dump(transaction_pool)
+    tmp = Marshal.dump(@transaction_pool)
     transactions = Marshal.load(tmp)
-    previous_hash = generate_hash(chain[-1])
+    previous_hash = generate_hash(@chain[-1])
     nonce = 0
     while !valid_ploof(transactions, previous_hash, nonce)
       nonce += 1
@@ -74,13 +74,17 @@ class Blockchain
   end
 
   def mining
-    add_transaction(sender_address = BLOCKCHAIN_ADDRESS, recipient_address = blockchain_address, value = REWARD)
+    add_transaction(sender_address = BLOCKCHAIN_ADDRESS, recipient_address = @blockchain_address, value = REWARD)
     nonce = ploof_of_work
     previous_hash = generate_hash(chain[-1])
     create_block(nonce, previous_hash)
     puts "action: MINING, status: SUCCESS"
     return true
   end
+
+  # def calculate_total_amount(blockchain_address)
+  #   total_amount = '0.0'.to_d
+  #   chain.
 end
 
 

@@ -1,12 +1,12 @@
 RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN = 31, 32, 33, 34, 35, 36
 
 
-def put_string(chains)
-  chains.each.with_index(1) do |chain, index|
+def put_string(chain)
+  chain.each.with_index(1) do |block, index|
     puts  ' '
     puts "\e[#{BLUE}m#{'=' * 41}" + " #{index} " + "#{'=' * 41}\e[0m"
 
-    chain.each do |key, value|
+    block.each do |key, value|
 
       if key.to_s == "transactions"
         printf("\e[#{MAGENTA}m%14s: \e[0m\n", key)
