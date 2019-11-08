@@ -1,7 +1,8 @@
 RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN = 31, 32, 33, 34, 35, 36
 
-def put_string(chains)
 
+def put_string(chains)
+  puts  ' '
   chains.each.with_index(1) do |chain, index|
     puts "\e[#{BLUE}m#{'=' * 40}" + " #{index} " + "#{'=' * 40}\e[0m"
 
@@ -23,6 +24,7 @@ def put_string(chains)
     end
   end
 end
+
 
 def sort_dict_by_key(unsorted_dict)
   unsorted_dict.sort.to_h
