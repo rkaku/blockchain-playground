@@ -2,8 +2,8 @@ RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN = 31, 32, 33, 34, 35, 36
 
 
 def put_string(chains)
-  puts  ' '
   chains.each.with_index(1) do |chain, index|
+    puts  ' '
     puts "\e[#{BLUE}m#{'=' * 40}" + " #{index} " + "#{'=' * 40}\e[0m"
 
     chain.each do |key, value|
@@ -23,6 +23,7 @@ def put_string(chains)
       end
     end
   end
+  puts "\e[#{GREEN}m#{'__' * 42}\e[0m\n"
 end
 
 
