@@ -32,7 +32,7 @@ class Blockchain
   def generate_hash(block)
     sorted_block = sort_dict_by_key(block)
     json_block = JSON.fast_generate(sorted_block)
-    OpenSSL::Digest.new('sha256').update(json_block) # :TODO: OpenSSL::Digest::SHA256.digest
+    OpenSSL::Digest.new('sha256').update(json_block) # :TODO: OpenSSL::Digest::
   end
 
   def add_transaction(sender_address, recipient_address, value)
