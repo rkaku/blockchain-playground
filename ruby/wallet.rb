@@ -1,6 +1,8 @@
 require 'openssl'
 require 'base58'
 require_relative './transaction.rb'
+require_relative './blockchain.rb'
+require_relative './helper.rb'
 
 
 class Wallet
@@ -9,7 +11,7 @@ class Wallet
   def initialize
     @priv_key = generate_priv_key #<OpenSSL::PKey::EC:0x00007f80acb0d400>
     @pub_key = generate_pub_key(@priv_key) #<OpenSSL::PKey::EC:0x00007f80acb0d180>
-    @blockchain_address = generate_address(@pub_key)
+    @address = generate_address(@pub_key)
   end
 
   def generate_priv_key
@@ -33,12 +35,13 @@ class Wallet
   def pub_key
     # @pub_key #<OpenSSL::PKey::EC:0x00007f80acb0d180>
     if @pub_key.public_key?
-      @pub_key.public_key #<OpenSSL::PKey::EC::Point:0x00007fa9429b0b48>
+      # @pub_key.public_key #<OpenSSL::PKey::EC::Point:0x00007fa9429b0b48>
+      @pub_key #<OpenSSL::PKey::EC::Point:0x00007fa9429b0b48>
     end
   end
 
-  def blockchain_address
-    @blockchain_address
+  def address
+    @address
   end
 
   def generate_address(pub_key)
@@ -56,10 +59,60 @@ class Wallet
 end
 
 
-wallet = Wallet.new
-p priv_key = wallet.priv_key
-p pub_key = wallet.pub_key
-p my_address = wallet.blockchain_address
+# v2.0
+miner = Wallet.new()
+alice = Wallet.new()
+bob = Wallet.new()
+# sender_priv_key, sender_pub_key, sender_address, recipient_address, value
+tran = Transaction.new(alice.priv_key, alice.pub_key, alice.address, bob.address, 80)
 
-tran = Transaction.new(priv_key, pub_key, my_address, 'Satoshi', '100')
-p tran.generate_signature
+
+# REST
+  # def initialize(blockchain_address = nil)
+  #   @transaction_pool = []
+  #   @chain = []
+  #   create_block(0, generate_hash({}))
+  #   @blockchain_address = blockchain_address
+blockchain = Blockchain.new(miner.address)
+  # def add_transaction(sender_address, recipient_address, value, sender_pubkey = nil, signature = nil)
+  #  def add_transaction(sender_address, recipient_address, value, sender_pubkey = nil, signature = nil, tran_obj = nil)
+is_added = blockchain.add_transaction(alice.address, bob.address, 80, alice.pub_key, tran.generate_signature, tran.tran_obj)
+p 'Is added?', is_added
+blockchain.mining
+put_string(blockchain.chain)
+p 'Alice', blockchain.calculate_total_amount(alice.address)
+p 'Bob', blockchain.calculate_total_amount(bob.address)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# v1.0
+# wallet = Wallet.new
+# p 'priv_key', priv_key = wallet.priv_key
+# p 'pub_key', pub_key = wallet.pub_key
+# p 'address', my_address = wallet.address
+
+# tran = Transaction.new(priv_key, pub_key, my_address, 'Satoshi', '100')
+# p 'signature', tran.generate_signature

@@ -24,7 +24,7 @@ def put_string(chain)
 
           transanction.each do |tkey, tvalue|
             if tkey.to_s == 'value'
-              printf("%18s: %s %s\n", tkey, tvalue.to_f, UNIT)
+              printf("%18s: %s %s\n", tkey, tvalue.to_f, UNIT) #:FIXME: bigdecimal
             else
               printf("%18s: %s\n", tkey, tvalue)
             end
@@ -39,5 +39,6 @@ def put_string(chain)
 end
 
 def sort_dict_by_key(unsorted_dict)
+  # unsorted_dict.sort
   unsorted_dict.sort.to_h
 end
