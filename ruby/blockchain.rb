@@ -17,13 +17,19 @@ class Blockchain
   end
 
   def create_block(nonce, previous_hash)
-    block = {
+    block = sort_dict_by_key({
       timestamp: Time.now,
       transactions: @transaction_pool,
       nonce: nonce,
       previous_hash: previous_hash
-    }
-    block = sort_dict_by_key(block)
+    })
+    # block = {
+    #   timestamp: Time.now,
+    #   transactions: @transaction_pool,
+    #   nonce: nonce,
+    #   previous_hash: previous_hash
+    # }
+    # block = sort_dict_by_key(block)
     @chain.push(block)
     @transaction_pool = []
     return block
@@ -32,7 +38,8 @@ class Blockchain
   def generate_hash(block)
     sorted_block = sort_dict_by_key(block)
     json_block = JSON.fast_generate(sorted_block)
-    OpenSSL::Digest.new('sha256').update(json_block) # :TODO: OpenSSL::Digest::
+    # OpenSSL::Digest.new('sha256').update(json_block) #:TODO: OpenSSL::Digest::?
+    OpenSSL::Digest::SHA256.hexdigest(json_block)
   end
 
   def add_transaction(sender_address, recipient_address, value)
