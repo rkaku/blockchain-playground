@@ -1,5 +1,6 @@
 require 'openssl'
 require 'base58'
+require_relative './transaction.rb'
 
 
 class Wallet
@@ -24,7 +25,8 @@ class Wallet
   def priv_key
     # @priv_key #<OpenSSL::PKey::EC:0x00007f80acb0d400>
     if @priv_key.private_key?
-      @priv_key.private_key #37109748745563250911720757976095590944029692158261137885083756599577546442030
+      # @priv_key.private_key #37109748745563250911720757976095590944029692158261137885083756599577546442030
+      @priv_key #<OpenSSL::PKey::EC:0x00007f80acb0d400>
     end
   end
 
@@ -55,6 +57,9 @@ end
 
 
 wallet = Wallet.new
-p wallet.priv_key
-p wallet.pub_key
-p wallet.blockchain_address
+p priv_key = wallet.priv_key
+p pub_key = wallet.pub_key
+p my_address = wallet.blockchain_address
+
+tran = Transaction.new(priv_key, pub_key, my_address, 'Satoshi', '100')
+p tran.generate_signature

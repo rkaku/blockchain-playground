@@ -1,3 +1,7 @@
+require 'bigdecimal'
+require 'bigdecimal/util'
+
+
 UNIT = 'BTC'
 DIFFICULTY = 3
 REWARD = '1.0'.to_d
