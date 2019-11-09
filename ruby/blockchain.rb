@@ -3,7 +3,7 @@ require 'openssl'
 require 'bigdecimal'
 require 'bigdecimal/util'
 require_relative './helper.rb'
-require_relative './cipher.rb'
+# require_relative './cipher.rb'
 
 
 class Blockchain
