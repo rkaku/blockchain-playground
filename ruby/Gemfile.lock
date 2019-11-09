@@ -1,0 +1,17 @@
+GEM
+  remote: https://rubygems.org/
+  specs:
+    base58 (0.2.3)
+    ipaddr (1.2.2)
+    openssl (2.1.2)
+      ipaddr
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  base58
+  openssl
+
+BUNDLED WITH
+   2.0.2
