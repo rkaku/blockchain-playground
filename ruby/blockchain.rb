@@ -6,14 +6,7 @@ require_relative './helper.rb'
 require_relative './cipher.rb'
 
 
-DIFFICULTY = 3
-REWARD = '1.0'.to_d
-SATOSHI_NAKAMOTO = 'Satoshi Nakamoto'
-BLOCKCHAIN_ADDRESS = OpenSSL::Digest.new('sha256').update(SATOSHI_NAKAMOTO).to_s
-
-
 class Blockchain
-
   attr :transaction_pool, :chain, :blockchain_address
 
   def initialize(blockchain_address = nil)
@@ -39,7 +32,7 @@ class Blockchain
   def generate_hash(block)
     sorted_block = sort_dict_by_key(block)
     json_block = JSON.fast_generate(sorted_block)
-    OpenSSL::Digest.new('sha256').update(json_block)
+    OpenSSL::Digest.new('sha256').update(json_block) # :TODO: OpenSSL::Digest::SHA256.digest
   end
 
   def add_transaction(sender_address, recipient_address, value)
@@ -67,18 +60,20 @@ class Blockchain
     transactions = Marshal.load(tmp)
     previous_hash = generate_hash(@chain[-1])
     nonce = 0
-    while !valid_ploof(transactions, previous_hash, nonce)
-      nonce += 1
-    end
+    nonce += 1 while !valid_ploof(transactions, previous_hash, nonce)
     return nonce
   end
 
   def mining
-    add_transaction(sender_address = BLOCKCHAIN_ADDRESS, recipient_address = @blockchain_address, value = REWARD)
+    add_transaction(
+      sender_address = BLOCKCHAIN_ADDRESS,
+      recipient_address = @blockchain_address,
+      value = REWARD
+    )
     nonce = ploof_of_work
     previous_hash = generate_hash(chain[-1])
     create_block(nonce, previous_hash)
-    puts "action: MINING, status: SUCCESS"
+    puts 'action: MINING, status: SUCCESS'
     return true
   end
 
@@ -86,7 +81,7 @@ class Blockchain
     total_amount = '0.0'.to_d
     @chain.each do |block|
       block.each do |key, value|
-        if key.to_s == "transactions"
+        if key.to_s == 'transactions'
           value.each do |transaction|
             if transaction[:recipient_address] == my_blockchain_address
               total_amount += transaction[:value]
@@ -97,17 +92,9 @@ class Blockchain
         end
       end
     end
-    return total_amount.to_f
+    return total_amount
   end
-
 end
-
-
-# :transactions=>
-# [
-# {:sender_address=>"A", :recipient_address=>"B", :value=>0.5e2},
-# {:sender_address=>"a0dc65ffca799873cbea0ac274015b9526505daaaed385155425f7337704883e", :recipient_address=>"my_blockchain_address", :value=>0.1e1}
-# ]
 
 
 my_blockchain_address = 'my_blockchain_address'
@@ -128,6 +115,6 @@ blockchain.mining
 # nonce = blockchain.ploof_of_work
 # blockchain.create_block(nonce, previous_hash)
 put_string(blockchain.chain)
-puts 'my', blockchain.calculate_total_amount(my_blockchain_address)
-puts 'C', blockchain.calculate_total_amount("C")
-puts 'D', blockchain.calculate_total_amount("D")
+puts "my #{blockchain.calculate_total_amount(my_blockchain_address).to_f} #{UNIT}"
+puts "C #{blockchain.calculate_total_amount('C').to_f} #{UNIT}"
+puts "D #{blockchain.calculate_total_amount('D').to_f} #{UNIT}"
