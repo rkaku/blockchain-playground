@@ -42,14 +42,49 @@ class Blockchain
     OpenSSL::Digest::SHA256.hexdigest(json_block)
   end
 
-  def add_transaction(sender_address, recipient_address, value)
-    transaction = {
+  def add_transaction(sender_address, recipient_address, value, sender_pubkey = nil, signature = nil, tran_obj = nil)
+    p value
+    transaction = sort_dict_by_key({
       sender_address: sender_address,
       recipient_address: recipient_address,
-      value: value.to_d.floor(8)
-    }
-    @transaction_pool.push(transaction)
-    return true
+      value: value
+      # value: value.to_d.floor(8)
+    })
+    # transaction = {
+    #   sender_address: sender_address,
+    #   recipient_address: recipient_address,
+    #   value: value.to_d.floor(8)
+    # }
+    if sender_address.to_s == BLOCKCHAIN_ADDRESS
+      @transaction_pool.push(transaction)
+      return true
+    elsif verify_transaction_signature(sender_pubkey, transaction, signature) && verify_transaction(transaction, tran_obj)
+      # if calculate_total_amount(sender_address) < value :FIXME: No Coin Error
+      #   false
+      # else
+      #   @transaction_pool.push(transaction)
+      #   return true
+      # end
+      @transaction_pool.push(transaction)
+      return true
+    else
+      return false
+    end
+  end
+
+  # transaction # Object
+  # @pub_key.public_key #<OpenSSL::PKey::EC::Point:0x00007fa9429b0b48>
+  # hex_signature = binary_signature.unpack('H*')[0] # String Hex
+  # binary_signature = @sender_priv_key.dsa_sign_asn1(trarnsaction_data) # String Binary
+  def verify_transaction_signature(sender_pubkey, transaction, signature)
+    p 'verify', transaction
+    p 'verify string', transaction.to_s
+    # sender_pubkey.dsa_verify_asn1(transaction.to_s, signature)
+    sender_pubkey.dsa_verify_asn1(transaction.to_s, signature)
+  end
+
+  def verify_transaction(transaction, tran_obj)
+    transaction == tran_obj
   end
 
   def valid_ploof(transactions, previous_hash, nonce, difficulty = DIFFICULTY)
@@ -59,7 +94,8 @@ class Blockchain
       nonce: nonce
     })
     next_hash = generate_hash(next_block)
-    return next_hash.to_s.slice(0..2) == '0' * difficulty
+    next_hash.to_s.slice(0..2) == '0' * difficulty
+    # return next_hash.to_s.slice(0..2) == '0' * difficulty
   end
 
   def ploof_of_work
@@ -85,7 +121,8 @@ class Blockchain
   end
 
   def calculate_total_amount(my_blockchain_address)
-    total_amount = '0.0'.to_d
+    total_amount = 0
+    # total_amount = '0.0'.to_d
     @chain.each do |block|
       block.each do |key, value|
         if key.to_s == 'transactions'
@@ -99,29 +136,50 @@ class Blockchain
         end
       end
     end
-    return total_amount
+    return total_amount.to_f #:FIXME: bigdecimal
+    # return total_amount
   end
 end
 
 
-my_blockchain_address = 'my_blockchain_address'
-blockchain = Blockchain.new(my_blockchain_address)
-put_string(blockchain.chain)
 
-blockchain.add_transaction('A', 'B', '50')
-blockchain.mining
-# previous_hash = blockchain.generate_hash(blockchain.chain[-1])
-# nonce = blockchain.ploof_of_work
-# blockchain.create_block(nonce, previous_hash)
-put_string(blockchain.chain)
 
-blockchain.add_transaction('C', 'D', '60')
-blockchain.add_transaction('E', 'F', '70')
-blockchain.mining
-# previous_hash = blockchain.generate_hash(blockchain.chain[-1])
-# nonce = blockchain.ploof_of_work
-# blockchain.create_block(nonce, previous_hash)
-put_string(blockchain.chain)
-puts "my #{blockchain.calculate_total_amount(my_blockchain_address).to_f} #{UNIT}"
-puts "C #{blockchain.calculate_total_amount('C').to_f} #{UNIT}"
-puts "D #{blockchain.calculate_total_amount('D').to_f} #{UNIT}"
+
+
+
+# v2.0
+# my_blockchain_address = 'my_blockchain_address'
+# blockchain = Blockchain.new(my_blockchain_address)
+# put_string(blockchain.chain)
+# blockchain.add_transaction('A', 'B', '50')
+# blockchain.mining
+# put_string(blockchain.chain)
+# blockchain.add_transaction('C', 'D', '60')
+# blockchain.add_transaction('E', 'F', '70')
+# blockchain.mining
+# put_string(blockchain.chain)
+# puts "my #{blockchain.calculate_total_amount(my_blockchain_address).to_f} #{UNIT}"
+# puts "C #{blockchain.calculate_total_amount('C').to_f} #{UNIT}"
+# puts "D #{blockchain.calculate_total_amount('D').to_f} #{UNIT}"
+
+
+# v1.0
+# my_blockchain_address = 'my_blockchain_address'
+# blockchain = Blockchain.new(my_blockchain_address)
+# put_string(blockchain.chain)
+# blockchain.add_transaction('A', 'B', '50')
+# blockchain.mining
+# # previous_hash = blockchain.generate_hash(blockchain.chain[-1])
+# # nonce = blockchain.ploof_of_work
+# # blockchain.create_block(nonce, previous_hash)
+# put_string(blockchain.chain)
+# blockchain.add_transaction('C', 'D', '60')
+# blockchain.add_transaction('E', 'F', '70')
+# blockchain.mining
+# # previous_hash = blockchain.generate_hash(blockchain.chain[-1])
+# # nonce = blockchain.ploof_of_work
+# # blockchain.create_block(nonce, previous_hash)
+# put_string(blockchain.chain)
+# puts "my #{blockchain.calculate_total_amount(my_blockchain_address).to_f} #{UNIT}"
+# puts "C #{blockchain.calculate_total_amount('C').to_f} #{UNIT}"
+# puts "D #{blockchain.calculate_total_amount('D').to_f} #{UNIT}"
