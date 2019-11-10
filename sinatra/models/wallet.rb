@@ -1,29 +1,9 @@
-require 'sinatra'
-require 'sinatra/reloader'
-require 'json'
 require 'openssl'
 require 'base58'
+require_relative './transaction.rb'
+require_relative './blockchain.rb'
+require_relative './helper.rb'
 
-
-get '/' do
-  'Hello, Blockchain!!'
-end
-
-# get '/wallet' do
-#   hash = JSON.generate(alice)
-# end
-
-get '/hello/*' do |name|
-  "Hello, #{name}."
-end
-
-get '/erb_template_page' do
-  erb :erb_template_page
-end
-
-get '/std/:arg' do
-  "display args #{params[:arg]}"
-end
 
 class Wallet
   VERSION_PREFIX = ['00'].pack('H2')
@@ -45,17 +25,13 @@ class Wallet
   end
 
   def priv_key
-    # @priv_key #<OpenSSL::PKey::EC:0x00007f80acb0d400>
     if @priv_key.private_key?
-      # @priv_key.private_key #37109748745563250911720757976095590944029692158261137885083756599577546442030
       @priv_key #<OpenSSL::PKey::EC:0x00007f80acb0d400>
     end
   end
 
   def pub_key
-    # @pub_key #<OpenSSL::PKey::EC:0x00007f80acb0d180>
     if @pub_key.public_key?
-      # @pub_key.public_key #<OpenSSL::PKey::EC::Point:0x00007fa9429b0b48>
       @pub_key #<OpenSSL::PKey::EC::Point:0x00007fa9429b0b48>
     end
   end
@@ -78,14 +54,10 @@ class Wallet
   end
 end
 
-alice = Wallet.new
 
+alice = Wallet.new
 obj = {
   priv_key: Base58.binary_to_base58(alice.priv_key.to_der, :bitcoin),
   pub_key: Base58.binary_to_base58(alice.pub_key.to_der, :bitcoin),
   address: alice.address
 }
-
-get '/wallet' do
-  hash = JSON.generate(obj)
-end
