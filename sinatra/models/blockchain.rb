@@ -119,10 +119,10 @@ class Blockchain
   end
 
   def chain
-    @chain.to_json
+    @chain
   end
 
   def transaction_pool
-    @transaction_pool.to_json
+    @transaction_pool
   end
 end

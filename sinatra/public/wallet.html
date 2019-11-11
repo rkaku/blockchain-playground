@@ -24,12 +24,12 @@
             $("#bob_pub_key").val(bob.pub_key)
             $("#bob_address").val(bob.address)
           },
-          error: function(error) {
-            console.error(error)
+          error: function(err) {
+            console.error(err)
           },
         })
-        $("#send_money_button").click(function() {
-          let confirm_text = "Are you sure to send?"
+        $("#send_button").click(function() {
+          let confirm_text = "Are you sure ?"
           let confirm_result = confirm(confirm_text)
           if (confirm_result !== true) {
             alert("Canceled")
@@ -37,23 +37,23 @@
           }
           let transaction_data = {
             sender_priv_key: $("#alice_priv_key").val(),
-            sender_public_key: $("#alice_pub_key").val(),
+            sender_pub_key: $("#alice_pub_key").val(),
             sender_address: $("#alice_address").val(),
             recipient_address: $("#recipient_address").val(),
-            value: $("#send_amount").val(),
+            value: $("#amount").val(),
           }
           $.ajax({
             url: "/send",
             type: "POST",
-            // contentType: "application/json",
-            // dataType: "json",
-            // data: JSON.stringify(transaction_data),
-            // success: function(response) {
-            //   alert("Send success")
-            // },
-            // error: function(response) {
-            //   alert("Send failed", error)
-            // },
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(transaction_data),
+            success: function(response) {
+              alert("SUCCESS")
+            },
+            error: function(err) {
+              alert("ERROR", err)
+            },
           })
         })
       })
@@ -79,10 +79,10 @@
         <br />
         <br />
         Amount:
-        <input size="80" type="text" id="send_amount" />
+        <input size="80" type="text" id="amount" />
         <br />
         <br />
-        <button id="send_money_button">Send</button>
+        <button id="send_button">Send</button>
       </div>
     </div>
     <br>
