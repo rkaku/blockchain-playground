@@ -33,3 +33,6 @@ yarn-debug.log*
 /vendor/bundle
 
 /ruby/node_modules
+
+/sinatra/vendor/
+/sinatra/.bundle/

@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Wallet</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script>
+      $(function() {
+        $.ajax({
+          url: "/wallet",
+          type: "GET",
+          success: function(response) {
+            console.info({ response })
+            json = JSON.parse(response)
+            console.info({ json })
+            alice = json[0]
+            bob = json[1]
+            console.info({ alice })
+            console.info({ bob })
+            $("#alice_priv_key").val(alice.priv_key)
+            $("#alice_pub_key").val(alice.pub_key)
+            $("#alice_address").val(alice.address)
+            $("#bob_priv_key").val(bob.priv_key)
+            $("#bob_pub_key").val(bob.pub_key)
+            $("#bob_address").val(bob.address)
+          },
+          error: function(err) {
+            console.error(err)
+          },
+        })
+        $("#send_button").click(function() {
+          let confirm_text = "Are you sure ?"
+          let confirm_result = confirm(confirm_text)
+          if (confirm_result !== true) {
+            alert("Canceled")
+            return
+          }
+          let transaction_data = {
+            sender_priv_key: $("#alice_priv_key").val(),
+            sender_pub_key: $("#alice_pub_key").val(),
+            sender_address: $("#alice_address").val(),
+            recipient_address: $("#recipient_address").val(),
+            value: $("#amount").val(),
+          }
+          $.ajax({
+            url: "/send",
+            type: "POST",
+            contentType: "application/json",
+            dataType: "json",
+            data: JSON.stringify(transaction_data),
+            success: function(response) {
+              alert("SUCCESS")
+            },
+            error: function(err) {
+              alert("ERROR", err)
+            },
+          })
+        })
+      })
+    </script>
+  </head>
+  <body>
+    <div>
+      <h3>Alice Wallet</h3>
+      <div>Private Key</div>
+      <textarea name="" id="alice_priv_key" cols="100" rows="2"></textarea>
+      <div>Public Key</div>
+      <textarea name="" id="alice_pub_key" cols="100" rows="2"></textarea>
+      <div>Blockchain Address</div>
+      <textarea name="" id="alice_address" cols="100" rows="1"></textarea>
+    </div>
+    <br>
+    ------------------------------------------------------------------------------------------------------------
+    <div>
+      <h3>Send Money</h3>
+      <div>
+        Address:
+        <input size="80" type="text" id="recipient_address" />
+        <br />
+        <br />
+        Amount:
+        <input size="80" type="text" id="amount" />
+        <br />
+        <br />
+        <button id="send_button">Send</button>
+      </div>
+    </div>
+    <br>
+------------------------------------------------------------------------------------------------------------
+    <div>
+      <h3>Bob Wallet</h3>
+      <div>Private Key</div>
+      <textarea name="" id="bob_priv_key" cols="100" rows="2"></textarea>
+      <div>Public Key</div>
+      <textarea name="" id="bob_pub_key" cols="100" rows="2"></textarea>
+      <div>Blockchain Address</div>
+      <textarea name="" id="bob_address" cols="100" rows="1"></textarea>
+    </div>
+  </body>
+</html>
