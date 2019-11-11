@@ -6,7 +6,8 @@ require_relative './helper.rb'
 
 
 class Blockchain
-  attr :transaction_pool, :chain, :blockchain_address
+
+  # attr_accessor :transaction_pool, :chain, :blockchain_address
 
   def initialize(blockchain_address = nil)
     @transaction_pool = []
@@ -34,7 +35,7 @@ class Blockchain
   end
 
   def add_transaction(sender_address, recipient_address, value, sender_pubkey = nil, signature = nil, tran_obj = nil)
-    p value
+    # p value
     transaction = sort_dict_by_key({
       sender_address: sender_address,
       recipient_address: recipient_address,
@@ -115,5 +116,13 @@ class Blockchain
       end
     end
     total_amount.to_f #:FIXME: bigdecimal
+  end
+
+  def chain
+    @chain.to_json
+  end
+
+  def transaction_pool
+    @transaction_pool.to_json
   end
 end

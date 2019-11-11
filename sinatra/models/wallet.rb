@@ -1,5 +1,6 @@
 require 'openssl'
 require 'base58'
+require 'json'
 require_relative './transaction.rb'
 require_relative './blockchain.rb'
 require_relative './helper.rb'
@@ -12,16 +13,6 @@ class Wallet
     @priv_key = generate_priv_key #<OpenSSL::PKey::EC:0x00007f80acb0d400>
     @pub_key = generate_pub_key(@priv_key) #<OpenSSL::PKey::EC:0x00007f80acb0d180>
     @address = generate_address(@pub_key)
-  end
-
-  def generate_priv_key
-    OpenSSL::PKey::EC.new('secp256k1').generate_key
-  end
-
-  def generate_pub_key(priv_key)
-    pub_key = OpenSSL::PKey::EC.new(priv_key)
-    pub_key.private_key = nil
-    pub_key
   end
 
   def priv_key
@@ -40,6 +31,16 @@ class Wallet
     @address
   end
 
+  def generate_priv_key
+    OpenSSL::PKey::EC.new('secp256k1').generate_key
+  end
+
+  def generate_pub_key(priv_key)
+    pub_key = OpenSSL::PKey::EC.new(priv_key)
+    pub_key.private_key = nil
+    pub_key
+  end
+
   def generate_address(pub_key)
     binary_pub_key = pub_key.to_der
     single_hashed_pub_key = OpenSSL::Digest::SHA256.hexdigest(binary_pub_key)
@@ -52,12 +53,18 @@ class Wallet
     binary_address = [hex_address].pack('H*')
     base58_address = Base58.binary_to_base58(binary_address, :bitcoin)
   end
+
+  def get_wallet
+    obj = {
+      priv_key: Base58.binary_to_base58(@priv_key.to_der, :bitcoin),
+      pub_key: Base58.binary_to_base58(@pub_key.to_der, :bitcoin),
+      address: @address
+    }
+    # obj = {
+    #   priv_key: Base58.binary_to_base58(@priv_key.to_der, :bitcoin),
+    #   pub_key: Base58.binary_to_base58(@pub_key.to_der, :bitcoin),
+    #   address: @address
+    # }
+    # obj.to_json
+  end
 end
-
-
-alice = Wallet.new
-obj = {
-  priv_key: Base58.binary_to_base58(alice.priv_key.to_der, :bitcoin),
-  pub_key: Base58.binary_to_base58(alice.pub_key.to_der, :bitcoin),
-  address: alice.address
-}
