@@ -14,8 +14,8 @@ obj = {
 }
 
 get '/wallet' do
-  # JSON.pretty_generate(obj)
-  obj.to_json
+  status 200
+  body obj.to_json
 end
 
 get '/' do
