@@ -1,8 +1,7 @@
 require 'openssl'
 require 'base58'
 require 'json'
-require_relative './transaction.rb'
-require_relative './blockchain.rb'
+
 require_relative './helper.rb'
 
 
@@ -24,6 +23,8 @@ class Wallet
   def pub_key
     if @pub_key.public_key?
       @pub_key #<OpenSSL::PKey::EC::Point:0x00007fa9429b0b48>
+      # @pub_key.to_der
+      # :FIXME: Binary Public Key => Public Key Object => Verified
     end
   end
 

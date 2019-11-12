@@ -2,6 +2,7 @@ require 'base58'
 require 'openssl'
 # require 'bigdecimal'
 # require 'bigdecimal/util'
+
 require_relative './helper.rb'
 
 
@@ -29,7 +30,8 @@ class Transaction
   end
 
   def generate_signature
-    transaction = transaction_object
+    # p sender_priv_key_obj = OpenSSL::PKey::EC.new(@sender_priv_key)
+    # transaction = transaction_object
     binary_signature = @sender_priv_key.dsa_sign_asn1(transaction_object.to_s) # String Binary #:TODO: Hex?
   end
 end
