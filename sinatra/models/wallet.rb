@@ -23,6 +23,8 @@ class Wallet
   def pub_key
     if @pub_key.public_key?
       @pub_key #<OpenSSL::PKey::EC::Point:0x00007fa9429b0b48>
+      # @pub_key.to_der
+      # :FIXME: Binary Public Key => Public Key Object => Verified
     end
   end
 

@@ -10,6 +10,10 @@ require './models/transaction.rb'
 require './models/wallet.rb'
 
 
+before do
+  response.headers['Access-Control-Allow-Origin'] = '*'
+end
+
 c = Cache.new
 
 get '/wallet' do
@@ -27,46 +31,55 @@ end
 post '/send' do
 # post '/send', provides: :json do
   json = JSON.parse(request.body.read)
-  alice_priv_key = json["sender_priv_key"]
+  # alice_priv_key = json["sender_priv_key"]
   alice_pub_key = json["sender_pub_key"]
-  alice_address = json["sender_address"]
+  alice_address = json["sender_address"] # Address => Hashed Key == Hashed pub_key ? True : False
   bob_address = json["recipient_address"]
   value = json["value"].to_f
+
+  ############## Client Side ############## Public Key, Signature, Transaction
   p tran = Transaction.new(
-    # alice_priv_key,
-    c.alice.priv_key, #:FIXME: priv_key => Signature
-    alice_pub_key, #:FIXME: => Binary pub_key.to_der
+    c.alice.priv_key, # => Signature
+    alice_pub_key,
     alice_address,
     bob_address,
     value #:TODO: Class
   )
+  binary_pub_key = c.alice.pub_key.to_der #:FIXME: Wallet => Binary pub_key.to_der => Blockchain
+  signature = tran.generate_signature
+  transaction_obj = tran.tran_obj
+  ############## Client Side ##############
+
   p is_added = c.blockchain.add_transaction(
     alice_address,
     bob_address,
     value,
     # alice_pub_key, # String => OpenSSL::PKey::ECError
-    c.alice.pub_key.to_der, #:FIXME: Wallet => Binary pub_key.to_der => Blockchain
-    tran.generate_signature,
-    tran.tran_obj
+    binary_pub_key, # Wallet => Binary pub_key.to_der =>
+    # c.alice.pub_key.to_der,
+    signature,
+    transaction_obj
+    # tran.generate_signature,
+    # tran.tran_obj
   )
 end
 
 get '/pool' do
-  p tran = Transaction.new(
-    c.alice.priv_key,
-    c.alice.pub_key,
-    c.alice.address,
-    c.bob.address,
-    100
-  )
-  p is_added = c.blockchain.add_transaction(
-    c.alice.address,
-    c.bob.address,
-    100,
-    c.alice.pub_key,
-    tran.generate_signature,
-    tran.tran_obj
-  )
+  # p tran = Transaction.new(
+  #   c.alice.priv_key,
+  #   c.alice.pub_key,
+  #   c.alice.address,
+  #   c.bob.address,
+  #   100
+  # )
+  # p is_added = c.blockchain.add_transaction(
+  #   c.alice.address,
+  #   c.bob.address,
+  #   100,
+  #   c.alice.pub_key,
+  #   tran.generate_signature,
+  #   tran.tran_obj
+  # )
   c.blockchain.transaction_pool.to_json
 end
 
@@ -90,3 +103,19 @@ helpers do
     Rack::Utils.escape_html(src)
   end
 end
+
+
+# Elliptic curve Diffie-Hellman key exchange
+
+# BTC
+# Private Key => Signature, Public Key, Transaction
+# Address => Hash Key
+# Public Key => Hashed Public Key
+# Hash Key == Hashed Public Key => Verified
+
+# SSL
+# Binary Public Key => Public Key Object
+# Pblic Key Object + SSL + Data + Signature => Verified
+
+# Transaction Data Verification
+# Previous Hash ???
