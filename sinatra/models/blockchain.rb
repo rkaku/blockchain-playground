@@ -2,6 +2,7 @@ require 'json'
 require 'openssl'
 # require 'bigdecimal'
 # require 'bigdecimal/util'
+
 require_relative './helper.rb'
 
 
@@ -34,7 +35,7 @@ class Blockchain
     OpenSSL::Digest::SHA256.hexdigest(json_block)
   end
 
-  def add_transaction(sender_address, recipient_address, value, sender_pubkey = nil, signature = nil, tran_obj = nil)
+  def add_transaction(sender_address, recipient_address, value, sender_pub_key = nil, signature = nil, tran_obj = nil)
     # p value
     transaction = sort_dict_by_key({
       sender_address: sender_address,
@@ -45,7 +46,7 @@ class Blockchain
     if sender_address.to_s == BLOCKCHAIN_ADDRESS
       @transaction_pool.push(transaction)
       return true
-    elsif verify_transaction_signature(sender_pubkey, transaction, signature) && verify_transaction(transaction, tran_obj)
+    elsif verify_transaction_signature(sender_pub_key, transaction, signature) && verify_transaction(transaction, tran_obj)
       # if calculate_total_amount(sender_address) < value :FIXME: No Coin Error
       #   false
       # else
@@ -59,8 +60,12 @@ class Blockchain
     end
   end
 
-  def verify_transaction_signature(sender_pubkey, transaction, signature)
-    sender_pubkey.dsa_verify_asn1(transaction.to_s, signature)
+  def verify_transaction_signature(sender_pub_key, transaction, signature)
+    sender_pub_key_obj = OpenSSL::PKey::EC.new(sender_pub_key)
+    # p transaction.to_s
+    # p signature
+    sender_pub_key_obj.dsa_verify_asn1(transaction.to_s, signature)
+    # sender_pub_key.dsa_verify_asn1(transaction.to_s, signature)
   end
 
   def verify_transaction(transaction, tran_obj)

@@ -1,8 +1,7 @@
 require 'openssl'
 require 'base58'
 require 'json'
-require_relative './transaction.rb'
-require_relative './blockchain.rb'
+
 require_relative './helper.rb'
 
 

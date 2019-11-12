@@ -3,48 +3,52 @@ require 'sinatra/reloader'
 require 'openssl'
 require 'base58'
 require 'json'
-require './models/wallet.rb'
+
 require './models/blockchain.rb'
+require './models/cache.rb'
 require './models/transaction.rb'
+require './models/wallet.rb'
 
-
-# cache = {}
-# alice = Wallet.new
-# bob = Wallet.new
-# tran = Transaction.new(alice.priv_key, alice.pub_key, alice.address, bob.address, 100)
-# miner = Wallet.new
-# blockchain = Blockchain.new(miner.address)
-
-class Cache
-  attr_reader :alice, :bob, :miner, :blockchain
-
-  def initialize
-    @alice = Wallet.new
-    @bob = Wallet.new
-    @miner = Wallet.new
-    @blockchain = Blockchain.new(@miner.address)
-  end
-
-  def get_wallet_cache
-    p [@alice.get_wallet, @bob.get_wallet]
-  end
-end
-
-
-  # is_added = blockchain.add_transaction(alice.address, bob.address, 80, alice.pub_key, tran.generate_signature, tran.tran_obj)
-  # blockchain.mining
 
 c = Cache.new
 
 get '/wallet' do
-  p c.get_wallet_cache.to_json
+  c.get_wallet_cache.to_json
 end
+
+# {
+#   "sender_priv_key"=>"Lzhp9LopCFeWZzD4G5yJZ8c3mpB8ckymPdAxjFandtPXKJSG5stWoDiRKazCKVLexCA7uuzqnyiWZZkLcpMXoWvaevukB7ezqyDr772V5cafMmTcd6GcWAktKGZHVqWHJ41naTGnwPeiGHZ4uzDHVnWGv4b156Gor",
+#   "sender_pub_key"=>"PZ8Tyr4Nx8MHsRAGMpZmZ6TWY63dXWSCzdutm7KuUpG1abEzKWegd6jyYRFjhFPsh1G7ShwQtdiJcbNNAPBcpMHZ7zASD8TnfEpcrRwcW66N9wauJaEyvaoA",
+#   "sender_address"=>"2ArCaRj3jQGcPUWEUSJPcbgGSsiX96dVbQs",
+#   "recipient_address"=>"fgrW7DVZ4qQmc7uy9amAQ6aYA9nFmze5Jo",
+#   "value"=>"600"
+# }
 
 post '/send' do
 # post '/send', provides: :json do
-  p JSON.parse(request.body.read) #:TODO:
-  # p tran = Transaction.new(alice.priv_key, alice.pub_key, alice.address, bob.address, 100)
-  # p is_added = blockchain.add_transaction(alice.address, bob.address, 100, alice.pub_key, tran.generate_signature, tran.tran_obj)
+  json = JSON.parse(request.body.read)
+  alice_priv_key = json["sender_priv_key"]
+  alice_pub_key = json["sender_pub_key"]
+  alice_address = json["sender_address"]
+  bob_address = json["recipient_address"]
+  value = json["value"].to_f
+  p tran = Transaction.new(
+    # alice_priv_key,
+    c.alice.priv_key, #:FIXME: priv_key => Signature
+    alice_pub_key, #:FIXME: => Binary pub_key.to_der
+    alice_address,
+    bob_address,
+    value #:TODO: Class
+  )
+  p is_added = c.blockchain.add_transaction(
+    alice_address,
+    bob_address,
+    value,
+    # alice_pub_key, # String => OpenSSL::PKey::ECError
+    c.alice.pub_key.to_der, #:FIXME: Wallet => Binary pub_key.to_der => Blockchain
+    tran.generate_signature,
+    tran.tran_obj
+  )
 end
 
 get '/pool' do
@@ -67,9 +71,7 @@ get '/pool' do
 end
 
 get '/mine' do
-# post '/mine', provides: :json do
-  # p JSON.parse(request.body.read)
-  # p 'Is added?', is_added
+# post '/mine', provides: :json do # ???
   p c.blockchain.mining
   "Success :)"
 end
