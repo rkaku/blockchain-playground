@@ -79,14 +79,12 @@ end
 
 # GET => Mining
 get '/mine' do
-  p 'Controller /mine', result = c.blockchain.mining #:TODO: Success Display
-  if result
-  # if result = c.blockchain.mining
-    "Success :)"
-    # result.to_json
+  if result = c.blockchain.mining
+    puts "Mining: Success :)"
+    result.to_json
   else
-    "Failed :("
-    # result.to_json
+    puts "Mining: Failed :("
+    result.to_json
   end
 end
 
