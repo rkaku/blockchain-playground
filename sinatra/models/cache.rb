@@ -1,5 +1,5 @@
 class Cache
-  attr_reader :alice, :bob, :miner, :blockchain
+  attr_reader :alice, :bob, :blockchain
 
   def initialize
     @alice = Wallet.new

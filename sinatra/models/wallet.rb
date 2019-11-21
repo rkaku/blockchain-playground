@@ -6,30 +6,22 @@ require_relative './helper.rb'
 
 
 class Wallet
+  # Environment Variable
   VERSION_PREFIX = ['00'].pack('H2')
+
+  attr_reader :priv_key, :pub_key, :address
 
   def initialize
     @priv_key = generate_priv_key #<OpenSSL::PKey::EC:0x00007f80acb0d400>
     @pub_key = generate_pub_key(@priv_key) #<OpenSSL::PKey::EC:0x00007f80acb0d180>
     @address = generate_address(@pub_key)
-  end
 
-  def priv_key
-    if @priv_key.private_key?
-      @priv_key #<OpenSSL::PKey::EC:0x00007f80acb0d400>
-    end
-  end
+    # OpenSSL
 
-  def pub_key
-    if @pub_key.public_key?
-      @pub_key #<OpenSSL::PKey::EC::Point:0x00007fa9429b0b48>
-      # @pub_key.to_der
-      # :FIXME: Binary Public Key => Public Key Object => Verified
-    end
-  end
+    # @pub_key.to_der => OpenSSL::PKey::EC.new(@pub_key.to_der)
+    # Binary Public Key => Public Key Object
 
-  def address
-    @address
+    # sender_pub_key_obj.dsa_verify_asn1(transaction.to_s, signature) => Verified
   end
 
   def generate_priv_key
@@ -61,11 +53,5 @@ class Wallet
       pub_key: Base58.binary_to_base58(@pub_key.to_der, :bitcoin),
       address: @address
     }
-    # obj = {
-    #   priv_key: Base58.binary_to_base58(@priv_key.to_der, :bitcoin),
-    #   pub_key: Base58.binary_to_base58(@pub_key.to_der, :bitcoin),
-    #   address: @address
-    # }
-    # obj.to_json
   end
 end
