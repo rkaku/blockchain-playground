@@ -76,11 +76,9 @@ describe 'GET /mine' do
   end
 
   it 'returns True or False' do
-    body = last_response.body
-    # body = JSON.parse(last_response.body) :FIXME: Boolean Response
+    body = JSON.parse(last_response.body)
     p 'RSpec GET /mine', body
-    expect(body.class).to eq String
-    # expect(body.class).to eq(True).or eq(False)
+    expect(body.class).to eq(TrueClass).or eq(FalseClass)
   end
 end
 
