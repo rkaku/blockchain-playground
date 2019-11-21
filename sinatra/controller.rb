@@ -13,7 +13,7 @@ require './models/wallet.rb'
 before do
   headers['Access-Control-Allow-Methods'] = 'GET, POST, PUT, DELETE, OPTIONS'
   headers['Access-Control-Allow-Origin'] = '*'
-#   headers['Access-Control-Allow-Headers'] = 'accept, authorization, origin'
+  headers['Access-Control-Allow-Headers'] = 'accept, authorization, origin'
 end
 
 options '*' do
@@ -21,40 +21,44 @@ options '*' do
   response.headers['Access-Control-Allow-Headers'] = 'X-Requested-With, X-HTTP-Method-Override, Content-Type, Cache-Control, Accept'
 end
 
+# Cache Instance
 c = Cache.new
 
-get '/wallet' do
-  c.get_wallet_cache.to_json
-end
-
+# GET => Wallet Data
 # {
 #   "sender_priv_key"=>"Lzhp9LopCFeWZzD4G5yJZ8c3mpB8ckymPdAxjFandtPXKJSG5stWoDiRKazCKVLexCA7uuzqnyiWZZkLcpMXoWvaevukB7ezqyDr772V5cafMmTcd6GcWAktKGZHVqWHJ41naTGnwPeiGHZ4uzDHVnWGv4b156Gor",
 #   "sender_pub_key"=>"PZ8Tyr4Nx8MHsRAGMpZmZ6TWY63dXWSCzdutm7KuUpG1abEzKWegd6jyYRFjhFPsh1G7ShwQtdiJcbNNAPBcpMHZ7zASD8TnfEpcrRwcW66N9wauJaEyvaoA",
 #   "sender_address"=>"2ArCaRj3jQGcPUWEUSJPcbgGSsiX96dVbQs",
 #   "recipient_address"=>"fgrW7DVZ4qQmc7uy9amAQ6aYA9nFmze5Jo",
-#   "value"=>"600"
+#   "value"=>"100"
 # }
+get '/wallet' do
+  p c.get_wallet_cache.to_json
+end
 
+# POST => Send BTC
 post '/send' do
-# post '/send', provides: :json do
-  json = JSON.parse(request.body.read)
-  # alice_priv_key = json["sender_priv_key"]
+  p json = JSON.parse(request.body.read)
+  #                                       # alice_priv_key = json["sender_priv_key"]
   alice_pub_key = json["sender_pub_key"]
-  alice_address = json["sender_address"] # Address => Hashed Key == Hashed pub_key ? True : False
+  alice_address = json["sender_address"]
+                                          # BTC
+                                          # Address => Restored Hashed Key
+                                          # Restored Hashed Key == Hashed pub_key ? True : False
   bob_address = json["recipient_address"]
   value = json["value"].to_f
 
   ############## Client Side ############## Public Key, Signature, Transaction
   p tran = Transaction.new(
-    c.alice.priv_key, # => Signature
+    c.alice.priv_key, # sender_priv_key => Signature
     alice_pub_key,
     alice_address,
     bob_address,
-    value #:TODO: Class
+    value
   )
-  binary_pub_key = c.alice.pub_key.to_der #:FIXME: Wallet => Binary pub_key.to_der => Blockchain
+  binary_pub_key = c.alice.pub_key.to_der #OpenSSL ( Wallet => Binary pub_key.to_der => Blockchain )
   signature = tran.generate_signature
-  transaction_obj = tran.tran_obj
+  p '/send #tran_obj', transaction_obj = tran.tran_obj
   ############## Client Side ##############
 
   p is_added = c.blockchain.add_transaction(
@@ -62,40 +66,31 @@ post '/send' do
     bob_address,
     value,
     # alice_pub_key, # String => OpenSSL::PKey::ECError
-    binary_pub_key, # Wallet => Binary pub_key.to_der =>
-    # c.alice.pub_key.to_der,
+    binary_pub_key, # OpenSSL ( Wallet => Binary pub_key.to_der => Blockchain )
     signature,
     transaction_obj
-    # tran.generate_signature,
-    # tran.tran_obj
   )
 end
 
+# GET => Transaction Pool Data
 get '/pool' do
-  # p tran = Transaction.new(
-  #   c.alice.priv_key,
-  #   c.alice.pub_key,
-  #   c.alice.address,
-  #   c.bob.address,
-  #   100
-  # )
-  # p is_added = c.blockchain.add_transaction(
-  #   c.alice.address,
-  #   c.bob.address,
-  #   100,
-  #   c.alice.pub_key,
-  #   tran.generate_signature,
-  #   tran.tran_obj
-  # )
-  c.blockchain.transaction_pool.to_json
+  p c.blockchain.transaction_pool.to_json
 end
 
+# GET => Mining
 get '/mine' do
-# post '/mine', provides: :json do # ???
-  p c.blockchain.mining
-  "Success :)"
+  p 'Controller /mine', result = c.blockchain.mining #:TODO: Success Display
+  if result
+  # if result = c.blockchain.mining
+    "Success :)"
+    # result.to_json
+  else
+    "Failed :("
+    # result.to_json
+  end
 end
 
+# GET => Blockchain Data
 get '/chain' do
   p [
     c.blockchain.chain,
@@ -106,7 +101,7 @@ end
 
 
 helpers do
-  def escape_html(src)
+  def h(src)
     Rack::Utils.escape_html(src)
   end
 end
@@ -116,13 +111,21 @@ end
 
 # BTC
 # Private Key => Signature, Public Key, Transaction
-# Address => Hash Key
-# Public Key => Hashed Public Key
-# Hash Key == Hashed Public Key => Verified
+# Address => %1 Hashed Key
+# Public Key => %2 Hashed Public Key
+# %1 Hashed Key == %2 Hashed Public Key => Verified
 
-# SSL
+# OpenSSL
 # Binary Public Key => Public Key Object
-# Pblic Key Object + SSL + Data + Signature => Verified
+# Pblic Key Object + OpenSSL + Data + Signature => Verified
+
 
 # Transaction Data Verification
-# Previous Hash ???
+
+# BTC
+# Previous Hash ??? => Verified ?
+
+# OpenSSL
+# Blockchain => add_transaction => ( sender_address, recipient_address, value ) => %1 transaction
+# Signature => Transaction => ( sender_address, recipient_address, value ) => %2 tran_obj
+# %1 transaction == %2 tran_obj => Verified
