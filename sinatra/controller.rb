@@ -103,27 +103,3 @@ helpers do
     Rack::Utils.escape_html(src)
   end
 end
-
-
-# Elliptic curve Diffie-Hellman key exchange
-
-# BTC
-# Private Key => Signature, Public Key, Transaction
-# Address => %1 Hashed Key
-# Public Key => %2 Hashed Public Key
-# %1 Hashed Key == %2 Hashed Public Key => Verified
-
-# OpenSSL
-# Binary Public Key => Public Key Object
-# Pblic Key Object + OpenSSL + Data + Signature => Verified
-
-
-# Transaction Data Verification
-
-# BTC
-# Previous Hash ??? => Verified ?
-
-# OpenSSL
-# Blockchain => add_transaction => ( sender_address, recipient_address, value ) => %1 transaction
-# Signature => Transaction => ( sender_address, recipient_address, value ) => %2 tran_obj
-# %1 transaction == %2 tran_obj => Verified
